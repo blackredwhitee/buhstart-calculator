@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Калькулятор бухгалтерских услуг</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Для отдела продаж</div>
+    <h1 class="hero-title">Калькулятор стоимости<br>бухгалтерских услуг</h1>
+    <p class="hero-sub">Заполните квиз вместе с клиентом — система рассчитает точную стоимость и сформирует КП, счёт и договор.</p>
+    <button class="btn btn-hero" onclick="startQuiz()">Начать расчёт</button>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<div class="quiz-wrap" id="quiz-wrap">
+
+  <div class="quiz-progress" id="quiz-start">
+    <div class="quiz-progress-inner">
+      <span class="step-label" id="step-label">Шаг 1 из 12</span>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="quiz-slides" id="quiz-slides">
+
+      <!-- ШАГ 1: ИП или ООО -->
+      <div class="slide" data-step="1">
+        <div class="slide-icon">🏢</div>
+        <h2 class="slide-title">Клиент — ИП или ООО?</h2>
+        <p class="slide-sub">От этого зависит базовая стоимость</p>
+        <div class="grid-2" id="g-entity">
+          <button class="ccard ccard--lg" data-val="ИП" onclick="pick(this,'g-entity')">
+            <span class="cc-icon">👤</span><span class="cc-label">ИП</span>
+            <span class="cc-sub">Индивидуальный предприниматель</span>
+          </button>
+          <button class="ccard ccard--lg" data-val="ООО" onclick="pick(this,'g-entity')">
+            <span class="cc-icon">🏛</span><span class="cc-label">ООО</span>
+            <span class="cc-sub">Общество с ограниченной ответственностью</span>
+          </button>
+        </div>
+        <span class="q-err" id="err-entity"></span>
+      </div>
+
+      <!-- ШАГ 2: Нулёвка -->
+      <div class="slide" data-step="2">
+        <div class="slide-icon">📂</div>
+        <h2 class="slide-title">У клиента нулевая отчётность?</h2>
+        <p class="slide-sub">Если нулевая — расчёт будет простым и быстрым</p>
+        <div class="grid-2" id="g-null">
+          <button class="ccard ccard--lg" data-val="yes" onclick="pick(this,'g-null')">
+            <span class="cc-icon">✅</span><span class="cc-label">Да, нулевая</span>
+            <span class="cc-sub">Деятельность не велась</span>
+          </button>
+          <button class="ccard ccard--lg" data-val="no" onclick="pick(this,'g-null')">
+            <span class="cc-icon">📊</span><span class="cc-label">Нет, есть обороты</span>
+            <span class="cc-sub">Была деятельность</span>
+          </button>
+        </div>
+        <span class="q-err" id="err-null"></span>
+      </div>
+
+      <!-- ШАГ 3: Система налогообложения (только если не нулёвка) -->
+      <div class="slide" data-step="3">
+        <div class="slide-icon">📋</div>
+        <h2 class="slide-title">Система налогообложения</h2>
+        <p class="slide-sub">Определяет надбавку к базовой стоимости</p>
+        <div class="grid-2" id="g-tax">
+          <button class="ccard" data-val="usn6" onclick="pick(this,'g-tax')">
+            <span class="cc-label">УСН 6%</span>
+            <span class="cc-sub">Доходы</span>
+          </button>
+          <button class="ccard" data-val="ausn" onclick="pick(this,'g-tax')">
+            <span class="cc-label">АУСН</span>
+            <span class="cc-sub">Автоматизированная УСН</span>
+          </button>
+          <button class="ccard" data-val="usn15" onclick="pick(this,'g-tax')">
+            <span class="cc-label">УСН 15%</span>
+            <span class="cc-sub">Доходы минус расходы</span>
+          </button>
+          <button class="ccard" data-val="osno" onclick="pick(this,'g-tax')">
+            <span class="cc-label">ОСНО</span>
+            <span class="cc-sub">Общая система</span>
+          </button>
+          <button class="ccard" data-val="patent" onclick="pick(this,'g-tax')">
+            <span class="cc-label">Патент</span>
+            <span class="cc-sub">Патентная система</span>
+          </button>
+        </div>
+        <span class="q-err" id="err-tax"></span>
+      </div>
+
+      <!-- ШАГ 4: Вид деятельности -->
+      <div class="slide" data-step="4">
+        <div class="slide-icon">🏭</div>
+        <h2 class="slide-title">Вид деятельности</h2>
+        <p class="slide-sub">Базовая стоимость зависит от ниши</p>
+        <div class="niche-grid" id="g-niche">
+          <button class="ncard" data-val="marketplace" onclick="pick(this,'g-niche')">
+            <span class="nc-icon">🛒</span>
+            <span class="nc-name">Маркетплейс</span>
+            <span class="nc-price">от 20 000 ₽</span>
+          </button>
+          <button class="ncard" data-val="wholesale" onclick="pick(this,'g-niche')">
+            <span class="nc-icon">📦</span>
+            <span class="nc-name">Оптовая торговля</span>
+            <span class="nc-price">от 20 000 ₽</span>
+          </button>
+          <button class="ncard" data-val="retail" onclick="pick(this,'g-niche')">
+            <span class="nc-icon">🏪</span>
+            <span class="nc-name">Розничная торговля</span>
+            <span class="nc-price">от 20 000 ₽</span>
+          </button>
+          <button class="ncard" data-val="production" onclick="pick(this,'g-niche')">
+            <span class="nc-icon">🏗</span>
+            <span class="nc-name">Производство</span>
+            <span class="nc-price">от 60 000 ₽</span>
+          </button>
+          <button class="ncard" data-val="construction" onclick="pick(this,'g-niche')">
+            <span class="nc-icon">🏚</span>
+            <span class="nc-name">Строительство</span>
+            <span class="nc-price">от 40 000 ₽</span>
+          </button>
+          <button class="ncard" data-val="catering" onclick="pick(this,'g-niche')">
+            <span class="nc-icon">🍽</span>
+            <span class="nc-name">Общепит</span>
+            <span class="nc-price">от 30 000 ₽</span>
+          </button>
+          <button class="ncard" data-val="medicine" onclick="pick(this,'g-niche')">
+            <span class="nc-icon">🏥</span>
+            <span class="nc-name">Медицина / Стоматология</span>
+            <span class="nc-price">от 50 000 ₽</span>
+          </button>
+          <button class="ncard" data-val="services" onclick="pick(this,'g-niche')">
+            <span class="nc-icon">💼</span>
+            <span class="nc-name">Услуги / Прочее</span>
+            <span class="nc-price">от 20 000 ₽</span>
+          </button>
+        </div>
+        <span class="q-err" id="err-niche"></span>
+      </div>
+
+      <!-- ШАГ 5: Маркетплейсы (только если маркетплейс) -->
+      <div class="slide" data-step="5" id="slide-mp">
+        <div class="slide-icon">🛒</div>
+        <h2 class="slide-title">Какие маркетплейсы?</h2>
+        <p class="slide-sub">Можно выбрать несколько — цены суммируются</p>
+        <div class="grid-2" id="g-mp">
+          <button class="ccard multi-ccard" data-val="wb" onclick="toggleMulti(this)">
+            <span class="cc-label">Wildberries</span>
+            <span class="cc-sub">+20 000 ₽</span>
+          </button>
+          <button class="ccard multi-ccard" data-val="ozon" onclick="toggleMulti(this)">
+            <span class="cc-label">Ozon</span>
+            <span class="cc-sub">+5 000 ₽</span>
+          </button>
+          <button class="ccard multi-ccard" data-val="ya" onclick="toggleMulti(this)">
+            <span class="cc-label">Яндекс Маркет</span>
+            <span class="cc-sub">+10 000 ₽</span>
+          </button>
+        </div>
+        <div class="checkbox-row" id="mp-inventory-row">
+          <label class="chk-label">
+            <input type="checkbox" id="mp-inventory" onchange="updateTotal()"/>
+            <span>Нужен товарный учёт <strong>+15 000 ₽</strong></span>
+          </label>
+        </div>
+        <span class="q-err" id="err-mp"></span>
+      </div>
+
+      <!-- ШАГ 6: НДС -->
+      <div class="slide" data-step="6">
+        <div class="slide-icon">🧾</div>
+        <h2 class="slide-title">Есть НДС?</h2>
+        <p class="slide-sub">Наличие НДС увеличивает объём работ</p>
+        <div class="grid-3" id="g-vat">
+          <button class="ccard" data-val="none" onclick="pick(this,'g-vat')">
+            <span class="cc-label">Нет</span>
+            <span class="cc-sub">Без НДС</span>
+          </button>
+          <button class="ccard" data-val="льготный" onclick="pick(this,'g-vat')">
+            <span class="cc-label">Льготный</span>
+            <span class="cc-sub">+5 000 ₽</span>
+          </button>
+          <button class="ccard" data-val="основной" onclick="pick(this,'g-vat')">
+            <span class="cc-label">Основной 20%</span>
+            <span class="cc-sub">+10 000 ₽</span>
+          </button>
+        </div>
+        <span class="q-err" id="err-vat"></span>
+      </div>
+
+      <!-- ШАГ 7: Сотрудники -->
+      <div class="slide" data-step="7">
+        <div class="slide-icon">👥</div>
+        <h2 class="slide-title">Сотрудники</h2>
+        <p class="slide-sub">Граждане РФ и иностранные — считаются отдельно</p>
+
+        <div class="staff-block">
+          <p class="staff-title">Граждане РФ (официально трудоустроенные, ГПХ)</p>
+          <div class="grid-2" id="g-staff-rf">
+            <button class="ccard" data-val="none" onclick="pick(this,'g-staff-rf')">
+              <span class="cc-label">Нет</span>
+            </button>
+            <button class="ccard" data-val="rf_1_3" onclick="pick(this,'g-staff-rf')">
+              <span class="cc-label">1–3 человека</span>
+              <span class="cc-sub">+5 000 ₽</span>
+            </button>
+            <button class="ccard" data-val="rf_more" onclick="pick(this,'g-staff-rf')">
+              <span class="cc-label">4 и более</span>
+              <span class="cc-sub">1 500 ₽ × кол-во</span>
+            </button>
+          </div>
+          <div class="num-row" id="rf-count-row" style="display:none">
+            <label class="q-label">Количество сотрудников РФ</label>
+            <input class="q-input num-input" type="number" id="rf-count" min="4" value="4" onchange="updateTotal()"/>
+          </div>
+        </div>
+
+        <div class="staff-block">
+          <p class="staff-title">Иностранные граждане</p>
+          <div class="grid-2" id="g-staff-foreign">
+            <button class="ccard" data-val="none" onclick="pick(this,'g-staff-foreign')">
+              <span class="cc-label">Нет</span>
+            </button>
+            <button class="ccard" data-val="yes" onclick="pick(this,'g-staff-foreign')">
+              <span class="cc-label">Есть</span>
+              <span class="cc-sub">20 000 ₽ × кол-во</span>
+            </button>
+          </div>
+          <div class="num-row" id="foreign-count-row" style="display:none">
+            <label class="q-label">Количество иностранцев</label>
+            <input class="q-input num-input" type="number" id="foreign-count" min="1" value="1" onchange="updateTotal()"/>
+          </div>
+        </div>
+
+        <span class="q-err" id="err-staff"></span>
+      </div>
+
+      <!-- ШАГ 8: Учёт наличных -->
+      <div class="slide" data-step="8">
+        <div class="slide-icon">💵</div>
+        <h2 class="slide-title">Учёт наличных</h2>
+        <p class="slide-sub">Выберите все подходящие варианты</p>
+        <div class="checks-list">
+          <label class="chk-label">
+            <input type="checkbox" id="cash-none" onchange="cashNoneToggle()"/>
+            <span>Нет — наличных расчётов нет</span>
+          </label>
+          <label class="chk-label">
+            <input type="checkbox" id="cash-kassa" onchange="updateTotal()"/>
+            <span>Касса (ККМ) <strong>+15 000 ₽</strong></span>
+          </label>
+          <label class="chk-label">
+            <input type="checkbox" id="cash-avans" onchange="updateTotal()"/>
+            <span>Авансовые отчёты <strong>+10 000 ₽</strong></span>
+          </label>
+        </div>
+        <span class="q-err" id="err-cash"></span>
+      </div>
+
+      <!-- ШАГ 9: Доп. услуги -->
+      <div class="slide" data-step="9">
+        <div class="slide-icon">➕</div>
+        <h2 class="slide-title">Дополнительные услуги</h2>
+        <p class="slide-sub">Отметьте всё, что нужно клиенту</p>
+        <div class="checks-list">
+          <label class="chk-label">
+            <input type="checkbox" id="add-ved" onchange="updateTotal()"/>
+            <span>ВЭД / Валютные расчёты <strong>+8 000 ₽</strong></span>
+          </label>
+          <label class="chk-label">
+            <input type="checkbox" id="add-reconcile" onchange="updateTotal()"/>
+            <span>Сверки с покупателями и поставщиками <strong>+15 000 ₽</strong></span>
+          </label>
+          <label class="chk-label">
+            <input type="checkbox" id="add-taxmgmt" onchange="updateTotal()"/>
+            <span>Налоговый менеджмент <strong>+20 000 ₽</strong></span>
+          </label>
+          <label class="chk-label">
+            <input type="checkbox" id="add-military" onchange="militaryToggle()"/>
+            <span>Воинский учёт <strong>2 000 ₽ × кол-во сотрудников</strong></span>
+          </label>
+          <div class="num-row" id="military-count-row" style="display:none">
+            <label class="q-label">Количество сотрудников для воинского учёта</label>
+            <input class="q-input num-input" type="number" id="military-count" min="1" value="1" onchange="updateTotal()"/>
+          </div>
+          <label class="chk-label">
+            <input type="checkbox" id="add-licenses" onchange="updateTotal()"/>
+            <span>Лицензионная отчётность (строительство, алко и др.) <strong>+10 000 ₽</strong></span>
+          </label>
+          <label class="chk-label">
+            <input type="checkbox" id="add-mgmt-acc" onchange="updateTotal()"/>
+            <span>Управленческий учёт <strong>— рассчитывается индивидуально</strong></span>
+          </label>
+          <label class="chk-label">
+            <input type="checkbox" id="add-office-buh" onchange="updateTotal()"/>
+            <span>Выделенный бухгалтер в офис (5 дней/нед.) <strong>— рассчитывается индивидуально</strong></span>
+          </label>
+        </div>
+        <!-- Товарный учёт для торговли/опта (показывается если нужно) -->
+        <div id="inventory-block" style="display:none">
+          <div class="sep"></div>
+          <label class="chk-label">
+            <input type="checkbox" id="add-inventory" onchange="updateTotal()"/>
+            <span id="inventory-label">Товарный учёт <strong id="inventory-price"></strong></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- ШАГ 10: Срочность -->
+      <div class="slide" data-step="10">
+        <div class="slide-icon">⚡</div>
+        <h2 class="slide-title">Нужна срочность?</h2>
+        <p class="slide-sub">Срочная работа — выполнение в течение 1–2 рабочих дней</p>
+        <div class="grid-2" id="g-urgent">
+          <button class="ccard ccard--lg" data-val="no" onclick="pick(this,'g-urgent')">
+            <span class="cc-icon">📅</span>
+            <span class="cc-label">Нет</span>
+            <span class="cc-sub">Стандартные сроки</span>
+          </button>
+          <button class="ccard ccard--lg" data-val="yes" onclick="pick(this,'g-urgent')">
+            <span class="cc-icon">⚡</span>
+            <span class="cc-label">Да, срочно</span>
+            <span class="cc-sub">Стоимость × 2</span>
+          </button>
+        </div>
+        <span class="q-err" id="err-urgent"></span>
+      </div>
+
+      <!-- ШАГ 11: Минимальные данные для КП -->
+      <div class="slide" data-step="11">
+        <div class="slide-icon">✍️</div>
+        <h2 class="slide-title">Данные клиента для КП</h2>
+        <p class="slide-sub">Реквизиты запросим перед договором и счётом</p>
+        <div class="fields-list">
+          <div class="field-row">
+            <label class="q-label">Название компании / ФИО <span class="req">*</span></label>
+            <input class="q-input" type="text" id="f-name" placeholder="ООО «Ромашка» или Иванов Иван Иванович"/>
+            <span class="q-err" id="err-name"></span>
+          </div>
+          <div class="field-row">
+            <label class="q-label">ФИО руководителя / директора</label>
+            <input class="q-input" type="text" id="f-director" placeholder="Иванов Иван Иванович"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- ШАГ 12: Итог -->
+      <div class="slide" data-step="12">
+        <div class="slide-icon">✅</div>
+        <h2 class="slide-title">Расчёт готов</h2>
+        <p class="slide-sub">Проверьте состав и нажмите «Сформировать КП»</p>
+        <div class="summary-card">
+          <div class="sum-total-row">
+            <span class="sum-total-label">Итого</span>
+            <span class="sum-total-val" id="sum-total">0 ₽</span>
+          </div>
+          <div id="sum-individual-note" class="sum-note" style="display:none">
+            ⚠️ Часть услуг рассчитывается индивидуально — итог неполный
+          </div>
+          <div class="sum-div"></div>
+          <div id="sum-lines" class="sum-lines"></div>
+          <div class="sum-div"></div>
+          <div id="sum-params" class="sum-params"></div>
+        </div>
+        <!-- Выбор юрлица -->
+        <div class="exec-pick">
+          <p class="exec-pick-title">От какого юрлица формируем документы</p>
+          <div class="exec-list" id="exec-list">
+            <label class="exec-opt">
+              <input type="radio" name="exec" value="0" checked onchange="pickExec(0)"/>
+              <div class="exec-info">
+                <span class="exec-name">ООО «Альфа Учёт»</span>
+                <span class="exec-inn">ИНН 7701234567</span>
+              </div>
+            </label>
+            <label class="exec-opt">
+              <input type="radio" name="exec" value="1" onchange="pickExec(1)"/>
+              <div class="exec-info">
+                <span class="exec-name">ООО «Бета Финанс»</span>
+                <span class="exec-inn">ИНН 7702345678</span>
+              </div>
+            </label>
+            <label class="exec-opt">
+              <input type="radio" name="exec" value="2" onchange="pickExec(2)"/>
+              <div class="exec-info">
+                <span class="exec-name">ИП Смирнова Елена Владимировна</span>
+                <span class="exec-inn">ИНН 770312345678</span>
+              </div>
+            </label>
+            <label class="exec-opt">
+              <input type="radio" name="exec" value="3" onchange="pickExec(3)"/>
+              <div class="exec-info">
+                <span class="exec-name">ООО «Гамма Консалт»</span>
+                <span class="exec-inn">ИНН 7704567890</span>
+              </div>
+            </label>
+            <label class="exec-opt">
+              <input type="radio" name="exec" value="4" onchange="pickExec(4)"/>
+              <div class="exec-info">
+                <span class="exec-name">ООО «Дельта Бухгалтерия»</span>
+                <span class="exec-inn">ИНН 7705678901</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="sum-actions">
+          <button class="btn btn-primary btn-xl" onclick="generateKP()">Сформировать КП</button>
+        </div>
+        <span class="q-err q-err--c" id="err-final"></span>
+      </div>
+
+    </div><!-- /slides -->
+
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" id="btn-back" onclick="goBack()" style="display:none">← Назад</button>
+      <button class="btn btn-primary" id="btn-next" onclick="goNext()">Далее →</button>
+    </div>
+  </div>
+</div><!-- /quiz-wrap -->
+
+<!-- KP SECTION -->
+<div class="doc-sec" id="kp-sec" style="display:none">
+  <div class="doc-inner">
+    <div class="doc-hdr">
+      <div><h2 class="doc-title">Коммерческое предложение</h2><p class="doc-sub" id="kp-meta"></p></div>
+      <div class="doc-acts">
+        <button class="btn btn-primary" onclick="downloadKP()">⬇ Скачать КП</button>
+        <button class="btn btn-ghost" onclick="downloadInvoice()">⬇ Скачать счёт</button>
+        <button class="btn btn-ghost" onclick="copyEl('kp-preview')">Скопировать</button>
+      </div>
+    </div>
+    <div class="doc-preview" id="kp-preview"></div>
+    <div class="doc-next">
+      <div class="post-kp-actions">
+        <button class="btn btn-accent btn-xl" onclick="openReqModal('contract')">Сформировать договор →</button>
+        <button class="btn btn-accent btn-xl" onclick="openReqModal('invoice')">Выставить счёт →</button>
+        <button class="btn btn-ghost btn-xl" onclick="showFinal()">Завершить без документов</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRACT SECTION -->
+<div class="doc-sec" id="contract-sec" style="display:none">
+  <div class="doc-inner">
+    <div class="doc-hdr">
+      <div><h2 class="doc-title">Договор оказания услуг</h2><p class="doc-sub" id="contract-meta"></p></div>
+      <div class="doc-acts">
+        <button class="btn btn-primary" onclick="downloadContract()">⬇ Скачать договор</button>
+        <button class="btn btn-ghost" onclick="copyEl('contract-preview')">Скопировать</button>
+      </div>
+    </div>
+    <div class="doc-preview" id="contract-preview"></div>
+    <div class="doc-next">
+      <div class="post-kp-actions">
+        <button class="btn btn-accent btn-xl" onclick="openReqModal('invoice')">Выставить счёт →</button>
+        <button class="btn btn-ghost btn-xl" onclick="showFinal()">Завершить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="final-sec" id="final-sec" style="display:none">
+  <div class="final-inner">
+    <div class="final-icon">🎉</div>
+    <h2 class="final-title">Заявка оформлена</h2>
+    <p class="final-sub">Документы готовы для передачи клиенту</p>
+    <div class="final-acts">
+      <button class="btn btn-primary btn-xl" onclick="downloadKP()">Скачать КП</button>
+      <button class="btn btn-primary btn-xl" onclick="downloadInvoice()">Скачать счёт</button>
+      <button class="btn btn-primary btn-xl" onclick="downloadContract()">Скачать договор</button>
+      <button class="btn btn-ghost btn-xl" onclick="newQuiz()">Новая заявка</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: Реквизиты + выбор юрлица -->
+<div class="modal-overlay" id="req-modal" style="display:none" onclick="closeReqModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeReqModal()">✕</button>
+    <h3 class="modal-title" id="modal-title">Реквизиты для документа</h3>
+    <p class="modal-sub">Выберите юрлицо исполнителя и укажите реквизиты клиента</p>
+
+    <!-- Выбранное юрлицо (только инфо) -->
+    <div class="modal-section">
+      <p class="modal-section-title">Исполнитель</p>
+      <div class="exec-selected-info" id="modal-exec-info"></div>
+    </div>
+
+    <!-- Реквизиты клиента -->
+    <div class="modal-section">
+      <p class="modal-section-title">Реквизиты клиента</p>
+      <div class="fields-list">
+        <div class="field-row">
+          <label class="q-label">ИНН <span class="req">*</span></label>
+          <input class="q-input" type="text" id="r-inn" placeholder="7700000000" maxlength="12"/>
+          <span class="q-err" id="err-r-inn"></span>
+        </div>
+        <div class="field-row">
+          <label class="q-label">КПП <span style="font-size:11px;color:var(--gray-400)">(для ООО)</span></label>
+          <input class="q-input" type="text" id="r-kpp" placeholder="770001001" maxlength="9"/>
+        </div>
+        <div class="field-row">
+          <label class="q-label">Юридический адрес</label>
+          <input class="q-input" type="text" id="r-address" placeholder="115035, г. Москва, ул. Примерная, д. 1"/>
+        </div>
+        <div class="field-row">
+          <label class="q-label">Телефон</label>
+          <input class="q-input" type="tel" id="r-phone" placeholder="+7 (___) ___-__-__"/>
+        </div>
+        <div class="field-row">
+          <label class="q-label">Email</label>
+          <input class="q-input" type="email" id="r-email" placeholder="email@company.ru"/>
+        </div>
+        <div class="field-row">
+          <label class="q-label">Расчётный счёт</label>
+          <input class="q-input" type="text" id="r-rs" placeholder="40702810000000000000" maxlength="20"/>
+        </div>
+        <div class="field-row">
+          <label class="q-label">Банк</label>
+          <input class="q-input" type="text" id="r-bank" placeholder="АО «Пример Банк»"/>
+        </div>
+        <div class="field-row">
+          <label class="q-label">БИК</label>
+          <input class="q-input" type="text" id="r-bik" placeholder="044525000" maxlength="9"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeReqModal()">Отмена</button>
+      <button class="btn btn-primary btn-xl" id="modal-confirm-btn" onclick="confirmReqModal()">Сформировать →</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="docx.min.js"></script>
+<script src="script.js?v=20"></script>
+</body>
+</html>
